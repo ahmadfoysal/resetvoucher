@@ -23,6 +23,7 @@
                 </div>
             @endif
 
+            {{-- Reset Voucher Form --}}
             <form action="{{ route('vouchers.reset') }}" method="POST">
                 @csrf
 
@@ -47,22 +48,25 @@
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-undo"></i> Reset Voucher
                     </button>
+                </div>
+            </form>
 
-                    {{-- Enable/Disable Voucher Button (NEXT to Reset) --}}
-                    <form action="{{ route('vouchers.toggle') }}" method="POST" class="ml-2">
-                        @csrf
-                        <input type="hidden" name="mikrotik_id" id="mikrotik_id_toggle">
-                        <input type="hidden" name="voucher_code" id="voucher_code_toggle">
+            {{-- Separate the Forms --}}
+            <hr>
 
-                        <button type="submit" class="btn btn-warning ml-2">
-                            <i class="fas fa-toggle-on"></i> Enable/Disable Voucher
-                        </button>
-                    </form>
+            {{-- Enable/Disable Voucher Form --}}
+            <form action="{{ route('vouchers.toggle') }}" method="POST">
+                @csrf
+                <input type="hidden" name="mikrotik_id" id="mikrotik_id_toggle">
+                <input type="hidden" name="voucher_code" id="voucher_code_toggle">
+
+                <div class="d-flex">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-toggle-on"></i> Enable/Disable Voucher
+                    </button>
                 </div>
             </form>
         </div>
-
-
     </div>
 @stop
 
