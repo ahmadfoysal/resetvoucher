@@ -6,6 +6,11 @@
     <h1>Reset Voucher</h1>
 @stop
 
+@push('css')
+    <!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+@endpush
+
 @section('content')
     <div class="card card-danger card-outline">
         <div class="card-header">
@@ -74,6 +79,51 @@
 @stop
 
 @section('js')
+    <!-- jQuery and Toastr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Toastr options
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "timeOut": "3000",
+            }
+
+            // Show multiple success messages
+            @if (session()->has('success_messages'))
+                @foreach (session('success_messages') as $message)
+                    toastr.success("{{ $message }}");
+                @endforeach
+            @endif
+
+            // Show multiple error messages
+            @if (session()->has('error_messages'))
+                @foreach (session('error_messages') as $message)
+                    toastr.error("{{ $message }}");
+                @endforeach
+            @endif
+
+            // Toastr notification
+
+            @if (session('success'))
+                toastr.success("{{ session('success') }}");
+            @endif
+
+            @if (session('error'))
+                toastr.error("{{ session('error') }}");
+            @endif
+
+            @if (session('warning'))
+                toastr.warning("{{ session('warning') }}");
+            @endif
+
+            @if (session('info'))
+                toastr.info("{{ session('info') }}");
+            @endif
+        });
+    </script>
     <script>
         $(document).ready(function() {
             $('#mikrotik_id').on('change', function() {
