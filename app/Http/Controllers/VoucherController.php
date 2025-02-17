@@ -62,6 +62,7 @@ class VoucherController extends Controller
             if (!empty($secret) && isset($secret[0]['.id'])) {
                 $api->comm('/ip/hotspot/user/set', [".id" => $secret[0]['.id'], "mac-address" => "00:00:00:00:00:00"]);
                 $message['success'][] = 'Voucher code ' . $data['voucher_code'] . ' MAC address reset';
+                $message['success'][] = 'Voucher code valid until ' . $secret[0]['comment'];
             } else {
                 $message['error'][] = 'Voucher code ' . $data['voucher_code'] . ' not found';
             }
