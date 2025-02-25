@@ -9,6 +9,8 @@
 @push('css')
     <!-- Toastr -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- Select2 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -34,13 +36,16 @@
 
                 <div class="form-group">
                     <label for="mikrotik_id">Select MikroTik Server</label>
-                    <select name="mikrotik_id" id="mikrotik_id" class="form-control" required>
-                        <option value="">-- Select MikroTik --</option>
+                    <select name="mikrotik_id" id="mikrotik_id" class="form-control select2 select2-hidden-accessible"
+                        style="width: 100%;" required>
+                        <option value="" selected>-- Select MikroTik --</option>
                         @foreach ($mikrotiks as $mikrotik)
                             <option value="{{ $mikrotik->id }}">{{ $mikrotik->name }} ({{ $mikrotik->ip }})</option>
                         @endforeach
                     </select>
                 </div>
+
+
 
                 <div class="form-group">
                     <label for="voucher_code">Voucher Code</label>
@@ -79,16 +84,24 @@
 @stop
 
 @section('js')
-    <!-- jQuery and Toastr -->
+    <!-- jQuery, Toastr & Select2 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <script>
         $(document).ready(function() {
+            // Initialize Select2 for MikroTik server select box
+            $('#mikrotik_id').select2({
+                placeholder: "Type to search...",
+                allowClear: true,
+                width: '100%'
+            });
+
             // Toastr options
             toastr.options = {
                 "closeButton": true,
                 "progressBar": true,
-                "timeOut": "3000",
+                "timeOut": "40000",
             }
 
             // Show multiple success messages
@@ -105,8 +118,7 @@
                 @endforeach
             @endif
 
-            // Toastr notification
-
+            // Toastr notifications
             @if (session('success'))
                 toastr.success("{{ session('success') }}");
             @endif
@@ -122,10 +134,8 @@
             @if (session('info'))
                 toastr.info("{{ session('info') }}");
             @endif
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
+
+            // Synchronize values between select and hidden inputs
             $('#mikrotik_id').on('change', function() {
                 $('#mikrotik_id_toggle').val($(this).val());
             });
