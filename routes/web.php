@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -7,37 +8,44 @@ use App\Http\Controllers\MikrotikController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\LogController;
 
-// Route::get('/', function () {
-//     return view('home');
-// })->middleware(['auth', 'verified']);
+Route::get('/', [HomeController::class, 'index'])->middleware(['auth', 'verified']);
+Route::get('/dashboard', function () {
+    return view('home');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route::get('/dashboard', function () {
-//     return view('home');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit')->withoutMiddleware('role:admin');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update')->withoutMiddleware('role:admin');
 
-    Route::resource('users', UserController::class);
-    Route::resource('mikrotiks', MikrotikController::class);
-    Route::get('/', [
-        VoucherController::class,
-        'resetVoucherForm'
-    ])->name('home')->withoutMiddleware('role:admin');
-    Route::get('/dashboard', [
-        VoucherController::class,
-        'resetVoucherForm'
-    ])->name('dashboard')->withoutMiddleware('role:admin');
-    Route::get('/resetvoucher', [VoucherController::class, 'resetVoucherForm'])->name('index.reset')->withoutMiddleware('role:admin');
-    Route::post('/resetvoucher', [VoucherController::class, 'resetVoucher'])->name('vouchers.reset')->withoutMiddleware('role:admin');
-    Route::post('/vouchers/toggle', [VoucherController::class, 'toggleVoucher'])->name('vouchers.toggle')->withoutMiddleware('role:admin');
 
-    Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::resource('users', UserController::class)->middleware(['auth', 'can:canManageUsers']);
+
+    Route::resource('mikrotiks', MikrotikController::class)->middleware(['auth', 'can:canManageMikrotiks']);
+    // Route::get('/', [
+    //     VoucherController::class,
+    //     'resetVoucherForm'
+    // ])->name('home')->middleware('can:canManageResetVouchers');
+    // Route::get('/dashboard', [
+    //     VoucherController::class,
+    //     'resetVoucherForm'
+    // ])->name('dashboard')->withoutMiddleware('can:canManageResetVouchers');
+    Route::get('/resetvoucher', [VoucherController::class, 'resetVoucherForm'])->name('index.reset')->middleware('can:canManageResetVouchers');
+    Route::post('/resetvoucher', [VoucherController::class, 'resetVoucher'])->name('vouchers.reset')->middleware('can:canManageResetVouchers');
+    Route::post('/vouchers/toggle', [VoucherController::class, 'toggleVoucher'])->name('vouchers.toggle')->middleware('can:canManageResetVouchers');
+
+    Route::get('/logs', [LogController::class, 'index'])->name('logs.index')->middleware('can:canManageSystemLogs');
+
+    Route::post('/users/{id}/loginAs', [UserController::class, 'loginAs'])->name('users.loginAs')
+        ->middleware(['auth', 'role:superadmin']);
+
+    Route::get('/switchBack', [UserController::class, 'switchBack'])->name('switchBack')
+        ->middleware(['auth']);
 });
 
 require __DIR__ . '/auth.php';
 
 //Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+//Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

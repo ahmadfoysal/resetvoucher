@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -13,9 +14,14 @@ class UserController extends Controller
      */
     public function index()
     {
-        return view('users.index', [
-            'users' => User::all(),
-        ]);
+        if (auth()->user()->hasRole('superadmin')) {
+            // Get all Admins
+            $users = User::role('admin')->get();
+        } else {
+            $users = auth()->user()->users;
+        }
+
+        return view('users.index', compact('users'));
     }
 
     /**
@@ -41,8 +47,11 @@ class UserController extends Controller
 
         $user = User::create($data);
 
-        //apply role to user
-        $user->assignRole('user');
+        if (auth()->user()->hasRole('superadmin')) {
+            $user->assignRole('admin');
+        } else {
+            $user->assignRole('user');
+        }
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
@@ -96,5 +105,55 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User deleted successfully!');
+    }
+
+    public function loginAs($id)
+    {
+        $superAdmin = Auth::user(); // Store the original Super Admin
+
+        // Ensure only Super Admin can impersonate
+        if (!$superAdmin->hasRole('superadmin')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $user = User::findOrFail($id); // Find the target user
+
+        if ($user->hasRole('superadmin')) {
+            return redirect()->route('dashboard')->with('error', 'You cannot impersonate another Super Admin.');
+        }
+
+        // Store the original Super Admin ID in session to allow switching back
+        session(['original_user_id' => $superAdmin->id]);
+
+        // Log in as the selected user
+        Auth::login($user);
+
+        return redirect()->route('index.reset')->with('success', 'Now logged in as ' . $user->name);
+    }
+
+
+    public function switchBack()
+    {
+        $originalUserId = session('original_user_id'); // Get stored Super Admin ID
+
+        // If no original Super Admin is stored, deny access
+        if (!$originalUserId) {
+            return redirect()->route('dashboard')->with('error', 'You are not impersonating any user.');
+        }
+
+        // Find the original Super Admin
+        $originalUser = User::find($originalUserId);
+
+        if (!$originalUser || !$originalUser->hasRole('superadmin')) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized switch back attempt.');
+        }
+
+        // Log back in as the Super Admin
+        Auth::login($originalUser);
+
+        // Clear the session data to prevent misuse
+        session()->forget('original_user_id');
+
+        return redirect()->route('users.index')->with('success', 'Switched back to Super Admin successfully.');
     }
 }

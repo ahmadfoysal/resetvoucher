@@ -7,6 +7,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Mikrotik;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,7 +17,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         //Create roles
-        $roles = ['admin', 'user'];
+        $roles = ['superadmin', 'admin', 'user'];
 
         foreach ($roles as $role) {
             Role::create(['name' => $role]);
@@ -25,8 +26,13 @@ class DatabaseSeeder extends Seeder
         //Create permissions
 
         $permissions = [
+            'isSuperAdmin',
             'isAdmin',
             'isUser',
+            'canManageUsers',
+            'canManageMikrotiks',
+            'canManageResetVouchers',
+            'canManageSystemLogs',
         ];
 
         foreach ($permissions as $permission) {
@@ -35,36 +41,81 @@ class DatabaseSeeder extends Seeder
 
         //Assign permissions to roles
 
+        $role = Role::findByName('superadmin');
+
+        $role->givePermissionTo('isSuperAdmin');
+
+        $role->givePermissionTo('canManageUsers');
+
         $role = Role::findByName('admin');
 
         $role->givePermissionTo('isAdmin');
 
+        $role->givePermissionTo('canManageUsers');
+        $role->givePermissionTo('canManageMikrotiks');
+        $role->givePermissionTo('canManageResetVouchers');
+        $role->givePermissionTo('canManageSystemLogs');
+
+
+
         $role = Role::findByName('user');
 
         $role->givePermissionTo('isUser');
+        $role->givePermissionTo('canManageResetVouchers');
 
 
 
 
 
-        //Create admin
 
-        $admin = User::create([
-            'name' => 'Admin',
-            'email' => 'admin@gmail.com',
+        //Create superadmin
+
+        $superadmin = User::create([
+            'name' => 'Superadmin',
+            'email' => 'superadmin@gmail.com',
             'password' => bcrypt('password'),
         ]);
 
-        $admin->assignRole('admin');
+        $superadmin->assignRole('superadmin');
 
-        //Create user
+        //Create 5 dummy admis
 
-        $user = User::create([
-            'name' => 'User',
-            'email' => 'user@gmail.com',
-            'password' => bcrypt('password'),
-        ]);
 
-        $user->assignRole('user');
+        for ($i = 1; $i <= 5; $i++) {
+            $admin = User::create([
+                'name' => 'Admin ' . $i,
+                'email' => 'admin' . $i . '@gmail.com',
+                'password' => bcrypt('password'),
+            ]);
+            $admin->assignRole('admin');
+        }
+
+
+        //Create 10 dummy users
+
+        for ($i = 1; $i <= 10; $i++) {
+            $user = User::create([
+                'name' => 'User ' . $i,
+                'email' => 'user' . $i . '@gmail.com',
+                'password' => bcrypt('password'),
+                'admin_id' => rand(1, 5),
+            ]);
+            $user->assignRole('user');
+        }
+
+        //Create 20 dummy mikrotiks
+
+        for ($i = 1; $i <= 20; $i++) {
+            $mikrotik = Mikrotik::create([
+                'name' => 'Mikrotik ' . $i,
+                'ip' => '192.168.1.' . $i,
+                'port' => '8728',
+                'username' => 'admin',
+                'password' => 'password',
+                'location' => 'Location ' . $i,
+                'user_id' => rand(1, 10),
+                'admin_id' => rand(1, 5),
+            ]);
+        }
     }
 }

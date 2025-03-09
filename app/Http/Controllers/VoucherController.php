@@ -13,8 +13,13 @@ class VoucherController extends Controller
 {
     public function resetVoucherForm()
     {
+        if (auth()->user()->hasRole('superadmin')) {
+            return redirect()->route('users.index');
+        }
+
+
         if (auth()->user()->hasRole('admin')) {
-            $mikrotiks = Mikrotik::all();
+            $mikrotiks = auth()->user()->adminMicrotiks;
         } else {
             $mikrotiks = auth()->user()->mikrotiks;
         }

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('location')->nullable();
             //User relation
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

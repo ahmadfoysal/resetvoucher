@@ -318,22 +318,21 @@ return [
             'text' => 'Manage Users',
             'route' => 'users.index',
             'icon' => 'fas fa-user-cog',
-            'can' => 'isAdmin',
+            'can' => 'canManageUsers',
 
         ],
         [
             'text' => 'MikroTik Servers',
             'route' => 'mikrotiks.index',
             'icon' => 'fas fa-network-wired',
-            'can' => 'isAdmin',
+            'can' => 'canManageMikrotiks',
 
         ],
-
-
         [
             'text' => 'Reset Voucher',
             'route' => 'index.reset',
             'icon' => 'fas fa-redo-alt',
+            'can' => 'canManageResetVouchers',
         ],
         [
             'text' => 'Profile',
@@ -344,18 +343,8 @@ return [
             'text' => 'System Logs',
             'route' => 'logs.index',
             'icon' => 'fas fa-clipboard-list',
+            'can' => 'canManageSystemLogs',
 
-        ],
-        [
-            'text' => 'Report',
-            'url' => '/report',
-            'icon' => 'fas fa-lock',
-        ],
-        [
-            'text' => 'Logout',
-            'route'  => 'logout',
-            'icon' => 'fas fa-sign-out-alt',
-            'method' => 'post',
         ],
     ],
 

@@ -17,7 +17,7 @@ class MikrotikController extends Controller
         //return mikrotiks based on role
 
         if (auth()->user()->hasRole('admin')) {
-            $mikrotiks = Mikrotik::all();
+            $mikrotiks = auth()->user()->adminMikrotiks;
         } else {
             $mikrotiks = auth()->user()->mikrotiks;
         }
@@ -30,7 +30,7 @@ class MikrotikController extends Controller
      */
     public function create()
     {
-        $users = User::all(); // Get all users for dropdown
+        $users = auth()->user()->users;
         return view('mikrotiks.create', compact('users'));
     }
 
@@ -48,6 +48,8 @@ class MikrotikController extends Controller
             'location' => 'required',
             'user_id' => 'required',
         ]);
+
+        $data['admin_id'] = auth()->id();
 
         Mikrotik::create($data);
 
@@ -68,7 +70,7 @@ class MikrotikController extends Controller
     public function edit(string $id)
     {
         $mikrotik = MikroTik::findOrFail($id);
-        $users = User::all();
+        $users = auth()->user()->users;
         return view('mikrotiks.edit', compact('mikrotik', 'users'));
     }
 

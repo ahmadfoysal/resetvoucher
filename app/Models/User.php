@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'admin_id',
     ];
 
     /**
@@ -54,5 +55,30 @@ class User extends Authenticatable
     public function mikrotiks()
     {
         return $this->hasMany(Mikrotik::class);
+    }
+
+    public function adminMicrotiks()
+    {
+        return $this->hasMany(Mikrotik::class, 'admin_id');
+    }
+
+
+    // Relationship: An Admin can have many users
+    public function users()
+    {
+        return $this->hasMany(User::class, 'admin_id');
+    }
+
+    // Relationship: A User belongs to an Admin
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
+    }
+
+    // Relationship: An admin can have many logs
+
+    public function logs()
+    {
+        return $this->hasMany(Log::class, 'admin_id');
     }
 }

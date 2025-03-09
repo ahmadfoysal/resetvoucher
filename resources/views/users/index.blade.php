@@ -43,10 +43,22 @@
                                             <i class="fas fa-trash"></i> Delete
                                         </button>
                                     </form>
+
+                                    @if (auth()->user()->hasRole('superadmin'))
+                                        <form action="{{ route('users.loginAs', $user->id) }}" method="POST"
+                                            class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-warning mb-1"
+                                                onclick="return confirm('Are you sure you want to login as {{ $user->name }}?')">
+                                                <i class="fas fa-sign-in-alt"></i> Login As
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
+
                 </table>
             </div>
         </div>

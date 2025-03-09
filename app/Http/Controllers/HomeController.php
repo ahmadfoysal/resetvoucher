@@ -23,6 +23,11 @@ class HomeController extends Controller
      */
     public function index()
     {
+        if (auth()->user()->hasRole('superadmin')) {
+            return redirect()->route('users.index');
+        } else {
+            return redirect()->route('index.reset');
+        }
         return view('home');
     }
 }

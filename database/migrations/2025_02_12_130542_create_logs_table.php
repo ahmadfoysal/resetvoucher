@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('logs', function (Blueprint $table) {
             $table->id();
             $table->string('user_id');
+            $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('mikrotik_id');
             $table->string('action');
             $table->timestamps();
