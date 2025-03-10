@@ -45,6 +45,8 @@ class UserController extends Controller
             'password' => 'required',
         ]);
 
+        $data['admin_id'] = auth()->id();
+
         $user = User::create($data);
 
         if (auth()->user()->hasRole('superadmin')) {

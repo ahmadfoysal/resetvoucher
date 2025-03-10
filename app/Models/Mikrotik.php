@@ -14,6 +14,7 @@ class Mikrotik extends Model
         'port',
         'location',
         'user_id',
+        'admin_id',
     ];
 
 

@@ -17,7 +17,7 @@ class MikrotikController extends Controller
         //return mikrotiks based on role
 
         if (auth()->user()->hasRole('admin')) {
-            $mikrotiks = auth()->user()->adminMikrotiks;
+            $mikrotiks = auth()->user()->adminMicrotiks;
         } else {
             $mikrotiks = auth()->user()->mikrotiks;
         }
@@ -83,7 +83,7 @@ class MikrotikController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'ip' => 'required|unique:mikrotiks,ip,' . $id,
+            'ip' => 'required',
             'username' => 'required|string|max:255',
             'password' => 'nullable|string|min:6',
             'port' => 'required|integer',

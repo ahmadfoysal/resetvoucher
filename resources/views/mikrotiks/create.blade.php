@@ -12,6 +12,18 @@
             <h3 class="card-title">MikroTik Server Details</h3>
         </div>
         <div class="card-body">
+            {{-- error --}}
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <h5><i class="icon fas fa-ban"></i> Alert!</h5>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form action="{{ route('mikrotiks.store') }}" method="POST">
                 @csrf
                 <div class="form-group">
