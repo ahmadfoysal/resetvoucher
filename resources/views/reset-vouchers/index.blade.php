@@ -1,124 +1,154 @@
 @extends('adminlte::page')
 
-@section('title', 'Reset Voucher')
-
-@section('content_header')
-    <h1>Reset Voucher</h1>
-@stop
+@section('title', 'Manage Hotspot Users')
 
 @push('css')
-    <!-- Toastr -->
+    <!-- Toastr & Select2 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <!-- Select2 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.bootstrap4.min.css">
 @endpush
 
 @section('content')
-    <div class="card card-danger card-outline">
-        <div class="card-header">
-            <h3 class="card-title">Reset or Enable/Disable Hotspot Voucher</h3>
+    <div class="card card-primary card-outline mt-3">
+        {{-- Card Header --}}
+        <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <h3 class="card-title">Hotspot Users</h3>
+
+            {{-- MikroTik Selection Form (Redirects to GET route) --}}
+            <div class="col-12 col-md-3">
+                <select name="mikrotik_id" id="mikrotik_id" class="form-control select2" required>
+                    <option value="">-- Select MikroTik --</option>
+                    @foreach ($mikrotiks as $mikrotik)
+                        <option value="{{ $mikrotik->id }}"
+                            {{ isset($mikrotik_id) && $mikrotik_id == $mikrotik->id ? 'selected' : '' }}>
+                            {{ $mikrotik->name }} ({{ $mikrotik->ip }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+
         </div>
+
         <div class="card-body">
-            {{-- Show error --}}
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+            {{-- Show Table Only If MikroTik is Selected --}}
+            @if (!empty($hotspotUsers))
+                <div class="table-responsive">
+                    <table id="hotspotUsersTable" class="table table-bordered table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Profile</th>
+                                <th>MAC Address</th>
+                                <th>Uptime</th>
+                                <th>Bytes In</th>
+                                <th>Bytes Out</th>
+                                <th>Comment</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                function formatBytes($bytes, $precision = 2)
+                                {
+                                    $units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB'];
+                                    $index = 0;
+
+                                    while ($bytes >= 1024 && $index < count($units) - 1) {
+                                        $bytes /= 1024;
+                                        $index++;
+                                    }
+
+                                    return round($bytes, $precision) . ' ' . $units[$index];
+                                }
+                            @endphp
+
+                            @foreach ($hotspotUsers as $user)
+                                <tr>
+                                    <td>{{ $user['name'] }}</td>
+                                    <td>{{ $user['profile'] ?? 'N/A' }}</td>
+                                    <td>{{ $user['mac-address'] ?? 'N/A' }}</td>
+                                    <td>{{ $user['uptime'] ?? 'N/A' }}</td>
+                                    <td>{{ isset($user['bytes-in']) ? formatBytes($user['bytes-in']) : 'N/A' }}</td>
+                                    <td>{{ isset($user['bytes-out']) ? formatBytes($user['bytes-out']) : 'N/A' }}</td>
+
+                                    <td>{{ $user['comment'] ?? 'N/A' }}</td>
+                                    <td>
+                                        {{-- Reset Voucher Button --}}
+                                        <form action="{{ route('vouchers.reset', ['mikrotik_id' => $mikrotik_id]) }}"
+                                            method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="voucher_code" value="{{ $user['name'] }}">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Reset Voucher">
+                                                <i class="fas fa-undo"></i>
+                                            </button>
+                                        </form>
+
+                                        {{-- Enable/Disable Voucher Button --}}
+                                        <form action="{{ route('vouchers.toggle', ['mikrotik_id' => $mikrotik_id]) }}"
+                                            method="POST" class="d-inline">
+                                            @csrf
+                                            <input type="hidden" name="voucher_code" value="{{ $user['name'] }}">
+
+                                            @php
+                                                $isEnabled = isset($user['disabled']) && $user['disabled'] == 'false';
+                                            @endphp
+
+                                            <button type="submit"
+                                                class="btn btn-sm {{ $isEnabled ? 'btn-success' : 'btn-secondary' }}"
+                                                title="{{ $isEnabled ? 'Disable' : 'Enable' }}">
+                                                <i class="fas fa-toggle-{{ $isEnabled ? 'on' : 'off' }}"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             @endif
-
-            {{-- Reset Voucher Form --}}
-            <form action="{{ route('vouchers.reset') }}" method="POST">
-                @csrf
-
-                <div class="form-group">
-                    <label for="mikrotik_id">Select MikroTik Server</label>
-                    <select name="mikrotik_id" id="mikrotik_id" class="form-control select2 select2-hidden-accessible"
-                        style="width: 100%;" required>
-                        <option value="" selected>-- Select MikroTik --</option>
-                        @foreach ($mikrotiks as $mikrotik)
-                            <option value="{{ $mikrotik->id }}">{{ $mikrotik->name }} ({{ $mikrotik->ip }})</option>
-                        @endforeach
-                    </select>
-                </div>
-
-
-
-                <div class="form-group">
-                    <label for="voucher_code">Voucher Code</label>
-                    <input type="text" name="voucher_code" id="voucher_code" class="form-control"
-                        placeholder="Enter voucher code" required>
-                </div>
-
-                <div class="d-flex">
-                    {{-- Reset Voucher Button --}}
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-undo"></i> Reset Voucher
-                    </button>
-                </div>
-            </form>
-
-            {{-- Separate the Forms --}}
-            <hr>
-
-            {{-- Enable/Disable Voucher Form --}}
-            <form action="{{ route('vouchers.toggle') }}" method="POST">
-                @csrf
-                <input type="hidden" name="mikrotik_id" id="mikrotik_id_toggle">
-                <input type="hidden" name="voucher_code" id="voucher_code_toggle">
-
-                <div class="d-flex">
-                    <button type="submit" class="btn btn-warning">
-                        <i class="fas fa-toggle-on"></i> Enable/Disable Voucher
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 @stop
 
-@section('css')
-@stop
-
-@section('js')
-    <!-- jQuery, Toastr & Select2 -->
+@push('js')
+    <!-- jQuery, Toastr, Select2, DataTables -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Initialize Select2 for MikroTik server select box
+            // Initialize Select2 with event listener
             $('#mikrotik_id').select2({
-                placeholder: "Type to search...",
+                placeholder: "Select a MikroTik Server",
                 allowClear: true,
                 width: '100%'
+            }).on('change', function() {
+                let mikrotikId = $(this).val();
+                if (mikrotikId) {
+                    window.location.href = "{{ url('/hotspot-users') }}/" + mikrotikId;
+                }
             });
 
-            // Toastr options
-            toastr.options = {
-                "closeButton": true,
-                "progressBar": true,
-                "timeOut": "40000",
+            // Initialize DataTable only if table exists
+            if ($('#hotspotUsersTable').length) {
+                $('#hotspotUsersTable').DataTable({
+                    responsive: true,
+                    autoWidth: false
+                });
             }
 
-            // Show multiple success messages
-            @if (session()->has('success_messages'))
-                @foreach (session('success_messages') as $message)
-                    toastr.success("{{ $message }}");
-                @endforeach
-            @endif
+            // Toastr Notifications
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                timeOut: 3000
+            };
 
-            // Show multiple error messages
-            @if (session()->has('error_messages'))
-                @foreach (session('error_messages') as $message)
-                    toastr.error("{{ $message }}");
-                @endforeach
-            @endif
-
-            // Toastr notifications
             @if (session('success'))
                 toastr.success("{{ session('success') }}");
             @endif
@@ -134,15 +164,6 @@
             @if (session('info'))
                 toastr.info("{{ session('info') }}");
             @endif
-
-            // Synchronize values between select and hidden inputs
-            $('#mikrotik_id').on('change', function() {
-                $('#mikrotik_id_toggle').val($(this).val());
-            });
-
-            $('#voucher_code').on('input', function() {
-                $('#voucher_code_toggle').val($(this).val());
-            });
         });
     </script>
-@stop
+@endpush

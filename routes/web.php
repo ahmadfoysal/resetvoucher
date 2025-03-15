@@ -34,6 +34,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/resetvoucher', [VoucherController::class, 'resetVoucherForm'])->name('index.reset')->middleware('can:canManageResetVouchers');
     Route::post('/resetvoucher', [VoucherController::class, 'resetVoucher'])->name('vouchers.reset')->middleware('can:canManageResetVouchers');
     Route::post('/vouchers/toggle', [VoucherController::class, 'toggleVoucher'])->name('vouchers.toggle')->middleware('can:canManageResetVouchers');
+    Route::get('/hotspot-users/{mikrotik_id?}', [VoucherController::class, 'getHotspotUsers'])
+        ->name('hotspot.users')
+        ->middleware('can:canManageResetVouchers');
+
+
 
     Route::get('/logs', [LogController::class, 'index'])->name('logs.index')->middleware('can:canManageSystemLogs');
 

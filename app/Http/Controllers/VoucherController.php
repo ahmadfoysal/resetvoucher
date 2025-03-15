@@ -27,6 +27,49 @@ class VoucherController extends Controller
         return view('reset-vouchers.index', compact('mikrotiks'));
     }
 
+    public function getHotspotUsers(Request $request, RouterOSAPI $api, $mikrotik_id = null)
+    {
+        // Fetch available MikroTik servers for the user
+        if (auth()->user()->hasRole('superadmin')) {
+            return redirect()->route('users.index');
+        }
+
+        if (auth()->user()->hasRole('admin')) {
+            $mikrotiks = auth()->user()->adminMicrotiks;
+        } else {
+            $mikrotiks = auth()->user()->mikrotiks;
+        }
+
+        // Ensure the selected MikroTik exists
+        $hotspotUsers = [];
+        if ($mikrotik_id) {
+            $mikrotik = Mikrotik::findOrFail($mikrotik_id);
+
+            $connection = $api->connect($mikrotik->ip . ':' . $mikrotik->port, $mikrotik->username, $mikrotik->password);
+
+            if ($connection) {
+                $hotspotUsers = $api->comm('/ip/hotspot/user/print');
+
+                $api->disconnect();
+            } else {
+                return back()->with('error', 'Failed to connect to the Mikrotik device');
+            }
+
+            if (empty($hotspotUsers)) {
+                return back()->with('error', 'No hotspot users found on the selected Mikrotik device');
+            }
+
+            $mikrotik_id = $mikrotik->id;
+
+            return view('reset-vouchers.index', compact('mikrotiks', 'hotspotUsers', 'mikrotik_id'));
+        }
+
+        return view('reset-vouchers.index', compact('mikrotiks'));
+    }
+
+
+
+
     public function resetVoucher(Request $request, RouterOSAPI $api)
     {
         $data = $request->validate([
