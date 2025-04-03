@@ -63,4 +63,76 @@
             </form>
         </div>
     </div>
+
+    <div class="card card-success card-outline">
+        <div class="card-header">
+            <h3 class="card-title">WhatsApp Verification</h3>
+        </div>
+        <div class="card-body">
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
+            <!-- WhatsApp Number Form -->
+
+            <form action="{{ route('whatsapp.send.otp') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label for="whatsapp_number">WhatsApp Number</label>
+                    <div class="input-group">
+                        <!-- Country Code Dropdown -->
+                        <div class="input-group-prepend">
+                            <select name="country_code" class="form-control">
+                                @foreach ($countries as $country)
+                                    <option value="{{ $country->dial_code }}">
+                                        <img src="https://flagcdn.com/w20/{{ strtolower($country->code) }}.png"
+                                            onerror="this.style.display='none';" width="20" class="mr-1">
+                                        {{ $country->dial_code }} ({{ $country->name }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Phone Number Input -->
+                        <input type="text" name="local_number" id="local_number" class="form-control"
+                            placeholder="Enter number without country code"
+                            value="{{ auth()->user()->phone?->phone ?? '' }}" required>
+
+                        <!-- Send OTP Button -->
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Send
+                                OTP</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+
+            <hr>
+
+            <!-- OTP Verification Form (Hidden by Default) -->
+            @if (session('whatsapp_otp'))
+                <form action="{{ route('whatsapp.verify.otp') }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label for="otp">Enter OTP</label>
+                        <div class="input-group">
+                            <input type="text" name="otp" id="otp" class="form-control" placeholder="Enter OTP"
+                                required>
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-success"><i class="fas fa-check-circle"></i> Verify
+                                    OTP</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            @endif
+
+        </div>
+    </div>
+
 @stop

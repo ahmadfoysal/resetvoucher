@@ -23,7 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'admin_id',
-
+        'api_token',
     ];
 
     /**
@@ -47,6 +47,14 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the phone record associated with the user.
+     */
+    public function phone()
+    {
+        return $this->hasOne(Phone::class);
     }
 
     /**

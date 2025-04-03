@@ -45,6 +45,9 @@ class UserController extends Controller
             'password' => 'required',
         ]);
 
+        //add api token
+        $data['api_token'] = bin2hex(random_bytes(30));
+
         $data['admin_id'] = auth()->id();
 
         $user = User::create($data);

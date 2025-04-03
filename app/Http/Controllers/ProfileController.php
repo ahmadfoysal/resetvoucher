@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -16,9 +17,20 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        $jsonPath = storage_path('app/Country.json');
+
+        if (!file_exists($jsonPath)) {
+            abort(500, 'Country.json file not found.');
+        }
+
+        $json = file_get_contents($jsonPath);
+        $countries = json_decode($json);
+
+        // dd($countries);
+
+        $user = $request->user();
+
+        return view('profile.edit', compact('user', 'countries'));
     }
 
     /**

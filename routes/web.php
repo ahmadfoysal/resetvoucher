@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MikrotikController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\WhatsAppController;
 
 Route::get('/', [HomeController::class, 'index'])->middleware(['auth', 'verified']);
 Route::get('/dashboard', function () {
@@ -17,6 +18,16 @@ Route::get('/dashboard', function () {
 
 
 Route::middleware(['auth'])->group(function () {
+
+    // Show WhatsApp verification page
+    Route::get('/whatsapp/verify', [WhatsAppController::class, 'showVerifyForm'])->name('whatsapp.verify.form');
+
+    // Send OTP to user's WhatsApp number
+    Route::post('/whatsapp/send-otp', [WhatsAppController::class, 'sendOtp'])->name('whatsapp.send.otp');
+
+    // Verify OTP entered by the user
+    Route::post('/whatsapp/verify-otp', [WhatsAppController::class, 'verifyOtp'])->name('whatsapp.verify.otp');
+
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

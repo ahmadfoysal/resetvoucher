@@ -74,6 +74,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Superadmin',
             'email' => 'superadmin@gmail.com',
             'password' => bcrypt('password'),
+            'api_token' => bin2hex(random_bytes(30)),
         ]);
 
         $superadmin->assignRole('superadmin');
@@ -86,6 +87,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Admin ' . $i,
                 'email' => 'admin' . $i . '@gmail.com',
                 'password' => bcrypt('password'),
+                'api_token' => bin2hex(random_bytes(30)),
             ]);
             $admin->assignRole('admin');
         }
@@ -98,6 +100,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'User ' . $i,
                 'email' => 'user' . $i . '@gmail.com',
                 'password' => bcrypt('password'),
+                'api_token' => bin2hex(random_bytes(30)),
                 'admin_id' => rand(1, 5),
             ]);
             $user->assignRole('user');
