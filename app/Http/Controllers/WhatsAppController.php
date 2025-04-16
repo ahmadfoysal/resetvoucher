@@ -32,25 +32,28 @@ class WhatsAppController extends Controller
             'local_number' => ['required', 'regex:/^\d{6,15}$/'],
         ]);
 
+
         // Clean up the phone number
-        $formattedNumber = preg_replace('/[\s()-]/', '', $request->whatsapp_number); // remove spaces, dashes, brackets
+        $formattedNumber = preg_replace('/[\s()-]/', '', $request->local_number); // remove spaces, dashes, brackets
 
         // Remove extra zero after country code (e.g., +880017... => +88017...)
         $formattedNumber = preg_replace('/^(\+\d{1,4})0/', '$1', $formattedNumber);
 
-        dd($formattedNumber);
+        $full_number = $request->country_code . $formattedNumber;
 
         $otp = rand(100000, 999999);
         Session::put('whatsapp_otp', $otp);
-        Session::put('whatsapp_number', $formattedNumber);
+        Session::put('whatsapp_number', $full_number);
 
         $whatsappService = new WhatsAppService();
-        $response = $whatsappService->sendMessage($formattedNumber, "Your OTP is: $otp");
+        $response = $whatsappService->sendMessage($full_number, "Your OTP is: $otp");
 
         if ($response && isset($response['status']) && $response['status'] == 'success') {
             return back()->with('success', 'OTP sent successfully.');
         } else {
-            return back()->with('error', 'Failed to send OTP. Response: ' . json_encode($response));
+            //remove the session data if sending fails
+            Session::forget(['whatsapp_otp', 'whatsapp_number']);
+            return back()->with('error', 'Failed to send OTP to your given number. Please try again.');
         }
     }
 

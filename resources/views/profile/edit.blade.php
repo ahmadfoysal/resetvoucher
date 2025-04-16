@@ -85,12 +85,10 @@
                     <label for="whatsapp_number">WhatsApp Number</label>
                     <div class="input-group">
                         <!-- Country Code Dropdown -->
-                        <div class="input-group-prepend">
+                        <div class="input-group-prepend" style="flex: 0 0 25%; max-width: 25%;">
                             <select name="country_code" class="form-control">
                                 @foreach ($countries as $country)
                                     <option value="{{ $country->dial_code }}">
-                                        <img src="https://flagcdn.com/w20/{{ strtolower($country->code) }}.png"
-                                            onerror="this.style.display='none';" width="20" class="mr-1">
                                         {{ $country->dial_code }} ({{ $country->name }})
                                     </option>
                                 @endforeach
@@ -110,6 +108,7 @@
                     </div>
                 </div>
             </form>
+
 
 
             <hr>
