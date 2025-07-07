@@ -24,7 +24,15 @@ class VoucherController extends Controller
             $mikrotiks = auth()->user()->mikrotiks;
         }
 
-        return view('reset-vouchers.index', compact('mikrotiks'));
+        // return view('reset-vouchers.index', compact('mikrotiks'));
+
+        $resetMode = auth()->user()->reset_mode;
+
+        if ($resetMode === 'manual') {
+            return view('reset-vouchers.manual-reset', compact('mikrotiks'));
+        } else {
+            return view('reset-vouchers.index', compact('mikrotiks'));
+        }
     }
 
     public function getHotspotUsers(Request $request, RouterOSAPI $api, $mikrotik_id = null)

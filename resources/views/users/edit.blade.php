@@ -34,9 +34,18 @@
                         placeholder="Enter new password">
                 </div>
 
+                <div class="form-group">
+                    <label for="reset_mode">Reset Mode</label>
+                    <select name="reset_mode" id="reset_mode" class="form-control" required>
+                        <option value="list" {{ $user->reset_mode == 'list' ? 'selected' : '' }}>List</option>
+                        <option value="manual" {{ $user->reset_mode == 'manual' ? 'selected' : '' }}>Manual</option>
+                    </select>
+                </div>
+
                 <button type="submit" class="btn btn-warning"><i class="fas fa-save"></i> Update User</button>
                 <a href="{{ route('users.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
             </form>
+
         </div>
     </div>
 @stop

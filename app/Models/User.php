@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'admin_id',
         'api_token',
+        'reset_mode',
     ];
 
     /**
