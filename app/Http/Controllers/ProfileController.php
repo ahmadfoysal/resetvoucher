@@ -17,20 +17,20 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        $jsonPath = storage_path('app/Country.json');
+        // $jsonPath = storage_path('app/Country.json');
 
-        if (!file_exists($jsonPath)) {
-            abort(500, 'Country.json file not found.');
-        }
+        // if (!file_exists($jsonPath)) {
+        //     abort(500, 'Country.json file not found.');
+        // }
 
-        $json = file_get_contents($jsonPath);
-        $countries = json_decode($json);
+        // $json = file_get_contents($jsonPath);
+        // $countries = json_decode($json);
 
         // dd($countries);
 
         $user = $request->user();
 
-        return view('profile.edit', compact('user', 'countries'));
+        return view('profile.edit', compact('user'));
     }
 
     /**

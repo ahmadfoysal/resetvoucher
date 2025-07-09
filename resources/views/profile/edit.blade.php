@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <div class="card card-success card-outline">
+    {{-- <div class="card card-success card-outline">
         <div class="card-header">
             <h3 class="card-title">WhatsApp Verification</h3>
         </div>
@@ -132,6 +132,6 @@
             @endif
 
         </div>
-    </div>
+    </div> --}}
 
 @stop
