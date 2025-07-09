@@ -76,25 +76,25 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Initialize Select2 with event listener
-            $('#mikrotik_id').select2({
-                placeholder: "Select a MikroTik Server",
-                allowClear: true,
-                width: '100%'
-            }).on('change', function() {
-                let mikrotikId = $(this).val();
-                if (mikrotikId) {
-                    window.location.href = "{{ url('/hotspot-users') }}/" + mikrotikId;
-                }
-            });
+            // // Initialize Select2 with event listener
+            // $('#mikrotik_id').select2({
+            //     placeholder: "Select a MikroTik Server",
+            //     allowClear: true,
+            //     width: '100%'
+            // }).on('change', function() {
+            //     let mikrotikId = $(this).val();
+            //     if (mikrotikId) {
+            //         window.location.href = "{{ url('/hotspot-users') }}/" + mikrotikId;
+            //     }
+            // });
 
             // Initialize DataTable only if table exists
-            if ($('#hotspotUsersTable').length) {
-                $('#hotspotUsersTable').DataTable({
-                    responsive: true,
-                    autoWidth: false
-                });
-            }
+            // if ($('#hotspotUsersTable').length) {
+            //     $('#hotspotUsersTable').DataTable({
+            //         responsive: true,
+            //         autoWidth: false
+            //     });
+            // }
 
             // Toastr Notifications
             toastr.options = {
